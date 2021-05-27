@@ -35,7 +35,7 @@ int exit_eydis(void);
 
 void xprintf(const char *what, ...);
 
-int print_strings(uint64_t address);
+int print_file_strings(uint64_t address);
 
 int patch_image(uint64_t address, uint64_t patch);
 

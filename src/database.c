@@ -32,7 +32,7 @@ void create_database(void) {
 }
 
 void write_database(int sub_or_loc, uint64_t ref_addr) {
-  char function_name[16];
+  char function_name[32];
 
   sqlite3_open(eydis_database, &db);
 

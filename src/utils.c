@@ -77,13 +77,13 @@ int exit_eydis(void) {
     while (1) {
       choose = readline("\e[0m\n[eydis]: saving eydis database [y | n] ? > ");
 
-      if (!strcmp(choose, "n") || !strcmp(choose, "N")) {
+      if (!strcasecmp(choose, "n")) {
         remove(eydis_database);
 
         printf("\n[%s]: database removed !\n", __func__);
 
         break;
-      } else if (!strcmp(choose, "y") || !strcmp(choose, "Y")) {
+      } else if (!strcasecmp(choose, "y")) {
         printf("\n[%s]: database saved !\n", __func__);
 
         break;
@@ -113,7 +113,7 @@ int value_is_printable(unsigned char c) {
 
 // https://stackoverflow.com/questions/51389969/implementing-my-own-strings-tool-missing-sequences-gnu-strings-finds
 
-int print_strings(uint64_t address) {
+int print_file_strings(uint64_t address) {
   unsigned char c;
   FILE *fd = NULL;
   char buffer[300];
@@ -126,25 +126,13 @@ int print_strings(uint64_t address) {
   fseek(fd, address, SEEK_SET);
 
   while (1 == fread(&c, 0x1, 1, fd)) {
-    if (c == 0x0a) {
-      if (p - buffer >= 4) {
-        print_string(" ; ");
-
-        print_file_strings(buffer);
-
-        fclose(fd);
-
-        return 0;
-      }
-    } else if ((value_is_printable(c) == 1) && (p - buffer < sizeof(buffer) - 3)) {
+    if ((value_is_printable(c) == 1) && (p - buffer < sizeof(buffer) - 3)) {
       *p++ = c;
     } else {
       if (p - buffer >= 4) {
         *p++ = '\0';
 
-        print_string(" ; ");
-
-        print_file_strings(buffer);
+        xprintf("; \033[38;5;242m\"%s\"\033[30;0m", buffer);
 
         fclose(fd);
 

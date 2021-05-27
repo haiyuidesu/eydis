@@ -1338,7 +1338,7 @@ unsigned int insn_is_adrp(uint32_t mem) {
     print_unsigned_immediate64((addr & 0xfffffffffffff) + opnb);
 
     if (x == 1) {
-      print_strings(((addr & 0xfffffffffffff) + opnb) - image.base);
+      print_file_strings(((addr & 0xfffffffffffff) + opnb) - image.base);
     }
 
     print_end_of_line();
@@ -1362,7 +1362,7 @@ unsigned int insn_is_adr(uint32_t mem) {
     print_unsigned_immediate64(addr + opnb);
 
     if (x == 1) {
-      print_strings((addr + opnb) - image.base);
+      print_file_strings((addr + opnb) - image.base);
     }
 
     print_end_of_line();

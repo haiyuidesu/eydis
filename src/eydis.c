@@ -34,7 +34,7 @@ void usage(char *argv[]) {
 
   owo = strrchr(argv[0], '/');
 
-  printf("usage: %s [-d] <image>\n", owo ? owo + 1 : argv[0]);
+  printf("usage: %s [-d] <image> [options]\n", owo ? owo + 1 : argv[0]);
   printf("   -w [file]\tspecify a database,\n");
   printf("   -b [addr]\tspecify the rebase address,\n\n");
 

@@ -151,10 +151,6 @@ static inline void print_options(const char *string) {
   xprintf("\033[38;5;242m%s\033[30;0m", string);
 }
 
-static inline void print_file_strings(const char *string) {
-  xprintf("\033[38;5;242m\"%s\"\033[30;0m", string);
-}
-
 static inline void print_mnemonic(const char *mnemonic) {
   xprintf("\033[30;0m\t\t%s\t\t", mnemonic);
 }
