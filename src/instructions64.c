@@ -695,7 +695,7 @@ unsigned int insn_is_loadstore_unsigned_immediate(uint32_t mem) {
     print_mnemonic(un_signed_mnemonics[opnb]);
 
     if (cBit(mem)) {
-      print_selected_register(rd(mem), size2(mem));
+      print_selected_register(rd(mem), size2(mem) + 0x2);
 
       scale = ((sh0(mem) & 0x2) << 0x1) | size2(mem);
     } else {

@@ -45,11 +45,11 @@ int disarm(void) {
   if (image.start == 0) {
     subprint(image.base);
 
-    xprintf("\033[38;5;242m%s:%llx   ", image.filetype, addr);
+    xprintf("\033[38;5;242m%s:%llx   ", image.filetype, image.base);
 
     print_register_sub("_start");
 
-    xprintf("\n\033[38;5;242m%s:%llx\n", image.filetype, addr);
+    xprintf("\n\033[38;5;242m%s:%llx\n", image.filetype, image.base);
   }
 
    // it will performs a full analysis in case of the user set the new limits above than the former ones

@@ -8,7 +8,7 @@ INST         = $(shell uname -m)
 ARCH         = $(shell uname -s)
 
 CFLAGS       += -O2
-CFLAGS       += -DDEBUG -Wall -Wno-format
+CFLAGS       += -DDEBUG -DSQLITE_ENABLE_FTS4 -Wall -Wno-format
 CFLAGS       += -c -I. -g3 -o
 
 LDFLAGS      =
@@ -31,10 +31,6 @@ $(TARGET): $(OBJECTS)
 	@echo "LD 	$(TARGET)"
 	@$(GCC) -o $@ $(LDFLAGS) $^ $(LDLIBS)
 	@echo "OK: built $(TARGET) for $(ARCH) ($(INST))."
-
-$(INSN)/%.o: $(INSN)/%.c
-	@echo "GCC 	$<"
-	@$(GCC) $< $(CFLAGS) $@
 
 $(SRC)/%.o: $(SRC)/%.c
 	@echo "GCC 	$<"

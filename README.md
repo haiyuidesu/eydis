@@ -15,7 +15,9 @@ usage: eydis [-d] <image>
    -b [addr]	specify the rebase address,    # "-b 0x100000000"
 
    -s [offset]	start from a specified offset, # "-s 0x30"
-   -e [offset]	end to a specified offset.     # "-e 0x200"
+   -e [offset]	end to a specified offset,     # "-e 0x200"
+
+   -a    analyze the aera until an ending offset. # use it with the '-e' flag!
 ```
 
 By the way, eydis has a built-in shell:
@@ -33,7 +35,7 @@ eydis > help
 ```
 
 ### Examples
-1. If you own a database (with the original file corresponding to) with renamed subroutines, you can specify it before running eydis with the `-w` argument:
+1. If you own a database (with the original file corresponding to) with renamed subroutines, you can specify it before running eydis with the `-w` flag:
 ```
 $ eydis -d original_arm_file.bin -w db_with_renamed_functions
 ```

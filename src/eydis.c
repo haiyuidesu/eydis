@@ -15,7 +15,7 @@ config_t image;
 
 char *function = NULL;
 
-#define which_eydis "1.0"
+#define which_eydis "1.1"
 
 char eydis_database[32];
 
@@ -41,6 +41,8 @@ void usage(char *argv[]) {
   printf("   -e [offset]\tend to a specified offset,\n");
   printf("   -s [offset]\tstart from a specified offset,\n\n");
 
+  printf("   -a\t\tanalyze the aera until an ending offset.\n\n");
+
   exit(-1);
 }
 
@@ -48,6 +50,8 @@ int main(int argc, char *argv[]) {
   int dis = 0;
   int spec = 0;
   int version = 0;
+
+  image.analyze = 0;
 
   image.start = 0x0;
   image.base = 0x0;
@@ -79,8 +83,10 @@ int main(int argc, char *argv[]) {
         case 'w':
           if (argv[arg_counter + 1] != NULL) {
             sprintf(eydis_database, "%s", argv[arg_counter + 1]);
+
             spec = 1; // i need to know if the database was specified
-            x = 1; // the database was loaded so no need to print all routines
+
+            x = 1; // the database already have the soubroutines addresses
           }
 
           break;
@@ -102,6 +108,10 @@ int main(int argc, char *argv[]) {
           }
 
           break;
+        case 'a':
+          image.analyze = 1;
+
+          break;
         default:
           printf("[%s]: warning: unrecognized argument: %s.\n\n", __func__, argv[arg_counter]);
 
@@ -114,6 +124,11 @@ int main(int argc, char *argv[]) {
 
   if (dis) {
     printf("[%s]: starting...\n", __func__);
+
+    if (image.analyze == 1 && image.end <= 0) {
+      printf("\n[%s]: refusing to avoid a full analysis without any ending limit set.\n", __func__);
+      return -1;
+    }
 
     FILE *fd = fopen(image.filename, "rb");
 
@@ -182,10 +197,14 @@ int main(int argc, char *argv[]) {
     }
 
     if (spec == 0) {
-      sprintf(eydis_database, "%s-%d", ".eydis", version);
+      sprintf(eydis_database, "%s-%d", ".eydis", version); // no database were specified | found so i just create a new one
     }
 
     printf("[%s]: \033[38;5;227mbase_addr\033[30;0m = \033[38;5;196m0x%llx\033[30;0m\n\n", __func__, image.base);
+
+    if (image.analyze == 1) {
+      image.length = image.end;
+    }
 
     printf("[%s]: loading file into database "
            "(\033[38;5;196m0x%llx\033[30;0m - \033[38;5;196m0x%llx\033[30;0m)...\n\n",

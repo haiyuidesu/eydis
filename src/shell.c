@@ -43,6 +43,12 @@ int set_lim(char *begin_addr, char *end_addr) {
     return -1;
   }
 
+  if (image.analyze == 1 && (image.end > image.length)) {
+    printf("\n[%s]: refusing to set the limits above than the former ones since the aera is not fully analyzed.\n", __func__);
+
+    return -1;
+  }
+
   printf("\n[%s]: new limits set : start = 0x%lx, end = 0x%lx\n", __func__, image.start, image.end);
 
   return 0;
@@ -67,7 +73,7 @@ int eydish(void) {
 
   while (1) {
     int o = 0;
-
+ 
     command = readline("\n\033[30;0meydis > ");
 
     strtok(command, " ");

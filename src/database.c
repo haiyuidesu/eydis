@@ -26,7 +26,7 @@ void create_database(void) {
   sqlite3_open(eydis_database, &db);
 
   // functions (sub or loc, operand address, function name);
-  sqlite3_exec(db, "CREATE TABLE functions (sub_loc INT, caddr INT64, fname TEXT);", 0, 0, 0);
+  sqlite3_exec(db, "CREATE VIRTUAL TABLE functions USING fts4(sub_loc INT, caddr INT64, fname TEXT);", 0, 0, 0);
 
   sqlite3_close(db);
 }
@@ -89,7 +89,7 @@ int print_subroutines(void) {
 
   sqlite3_open(eydis_database, &db);
 
-  sql = sqlite3_mprintf("SELECT * FROM functions WHERE caddr='%lx';", addr);
+  sql = sqlite3_mprintf("SELECT * FROM functions WHERE caddr MATCH '%lx';", addr);
 
   if (sqlite3_prepare_v2(db, sql, -1, &res, 0) != SQLITE_OK) {
     sqlite3_close(db);
@@ -130,7 +130,7 @@ int print_operand_address(uint64_t ref_addr) {
 
   sqlite3_open(eydis_database, &db);
 
-  sql = sqlite3_mprintf("SELECT * FROM functions WHERE caddr='%lx';", ref_addr);
+  sql = sqlite3_mprintf("SELECT * FROM functions WHERE caddr MATCH '%lx';", ref_addr);
 
   if (sqlite3_prepare_v2(db, sql, -1, &res, 0) != SQLITE_OK) {
     sqlite3_close(db);
