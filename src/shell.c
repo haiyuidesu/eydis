@@ -73,7 +73,7 @@ int eydish(void) {
 
   while (1) {
     int o = 0;
- 
+
     command = readline("\n\033[30;0meydis > ");
 
     strtok(command, " ");

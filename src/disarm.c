@@ -1,6 +1,7 @@
 #define _GNU_SOURCE
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
 
@@ -9,11 +10,6 @@
 #include <include/instructions64.h>
 
 /************** disassemble **************/
-
-/*
- *  TODO:
- *     - Make the shell bar static (using ncurses)
- */
 
 uint64_t addr = 0;
 
@@ -35,7 +31,6 @@ void current_insn_hex(unsigned int where) {
 
 int disarm(void) {
   uint32_t mem = 0;
-  unsigned int i = 0;
 
   int start_point = 0;
   int end_point = 0;
@@ -60,20 +55,30 @@ int disarm(void) {
   if (x == 0) {
     start_point = 0x0;
     end_point = image.length;
-  }
 
-  for (i = start_point; i <= end_point; i += 0x4) {
+    char *prologues[] = { "\xf6\x57\xbd\xa9", "\xfd\x7b\xbf\xa9", "\xfc\x6f\xba\xa9", "\x7f\x23\x03\xd5" }; // 64bit prologues
+
+    for (int i = 0; i != 0x4; i++) {
+      for (int j = 0; j <= image.length; j += 0x4) {
+        if (memcmp(&image.img[j], prologues[i], 0x4) == 0) {
+          check_data_existence(1, image.base + j);
+        }
+      }
+    }
+  }
+  
+  while (start_point <= end_point) {
     unsigned int j = 0;
 
-    addr = image.base + i;
-    mem = *(uint32_t *)(image.img + i);
+    addr = image.base + start_point;
+    mem = *(uint32_t *)(image.img + start_point);
 
     if (x == 1) print_subroutines(); // this function is guilty of the slowness of eydis...
     // if you comment out this line, it will become a way more faster but it would not make any sense without it...
 
     xprintf("\033[38;5;242m%s:%llx", image.filetype, addr);
 
-    if (x == 1) current_insn_hex(i);
+    if (x == 1) current_insn_hex(start_point);
 
     while (j != sizeof(available_insn64)) {
       if (available_insn64[j].insn(mem) == 1) {
@@ -82,6 +87,8 @@ int disarm(void) {
 
       j++;
     }
+
+    start_point += 0x4;
   }
 
   if (x == 0) {

@@ -17,7 +17,7 @@ char *function = NULL;
 
 #define which_eydis "1.1"
 
-char eydis_database[32];
+char eydis_database[256];
 
 // What do you like in a reversing tool?
 
@@ -123,17 +123,17 @@ int main(int argc, char *argv[]) {
   }
 
   if (dis) {
-    printf("[%s]: starting...\n", __func__);
+    printf("[%s]: starting...", __func__);
 
     if (image.analyze == 1 && image.end <= 0) {
-      printf("\n[%s]: refusing to avoid a full analysis without any ending limit set.\n", __func__);
+      printf("\n\n[%s]: refusing to avoid a full analysis without any ending limit set.\n", __func__);
       return -1;
     }
 
     FILE *fd = fopen(image.filename, "rb");
 
     if (!fd) {
-      printf("[%s]: unable to open %s.\n", __func__, image.filename);
+      printf("\n\n[%s]: unable to open %s.\n", __func__, image.filename);
       return -1;
     }
 
@@ -173,7 +173,9 @@ int main(int argc, char *argv[]) {
         case 0x5ff00000:
         case 0xbff00000:
         case 0x10000000:
-          break;
+          printf("[%s]: the 32bit is not avalaible for the moment, please come back later!\n", __func__);
+          free(image.img);
+          return -1;
         default:
           image.base = *(uint64_t *)(image.img + ((version >= 6723) ? 0x300 : 0x318));
           break;
@@ -200,7 +202,7 @@ int main(int argc, char *argv[]) {
       sprintf(eydis_database, "%s-%d", ".eydis", version); // no database were specified | found so i just create a new one
     }
 
-    printf("[%s]: \033[38;5;227mbase_addr\033[30;0m = \033[38;5;196m0x%llx\033[30;0m\n\n", __func__, image.base);
+    printf("\n[%s]: \033[38;5;227mbase_addr\033[30;0m = \033[38;5;196m0x%llx\033[30;0m\n\n", __func__, image.base);
 
     if (image.analyze == 1) {
       image.length = image.end;

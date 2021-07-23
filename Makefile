@@ -7,7 +7,7 @@ TARGET       = eydis
 INST         = $(shell uname -m)
 ARCH         = $(shell uname -s)
 
-CFLAGS       += -O2
+CFLAGS       += 
 CFLAGS       += -DDEBUG -DSQLITE_ENABLE_FTS4 -Wall -Wno-format
 CFLAGS       += -c -I. -g3 -o
 

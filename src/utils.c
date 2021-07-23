@@ -132,6 +132,16 @@ int print_file_strings(uint64_t address) {
       if (p - buffer >= 4) {
         *p++ = '\0';
 
+        // these strings should not be presents
+        char *str_to_avoid[] = { "160D", "A@qA", "@y `@y", "Qli(", "E@9(", "M@97",
+                                 "'A)*)", "'A)*","Q)|@", "R*A@", "Rh&@", "*QK}@", "I58`" };
+
+        for (int i = 0; i != 0xD; i++) {
+          if (!strcmp(buffer, str_to_avoid[i])) {
+            goto end;
+          }
+        }
+
         xprintf("; \033[38;5;242m\"%s\"\033[30;0m", buffer);
 
         fclose(fd);
@@ -143,6 +153,7 @@ int print_file_strings(uint64_t address) {
     }
   }
 
+end:
   fclose(fd);
 
   return -1;

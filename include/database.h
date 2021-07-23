@@ -8,7 +8,7 @@ extern "C" {
 #include <sqlite3.h>
 
 extern sqlite3 *db;
-extern char eydis_database[32];
+extern char eydis_database[256];
 
 void create_database(void);
 

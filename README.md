@@ -77,10 +77,10 @@ Then when everything is done, you can use the `reload` command to display or `sa
 ## III.  The 'TODO' list
 ```
 > Optimize the most possible the whole program,
-> Make a better user experience (using the 'ncurses' library),
-> Find the end of the regulars functions (so the prints can ends faster),
-> Avoid to re-print the whole image every times that the 'reload' command is called,
-> Avoid to use GNU readline (I use it because it is more advanced than a simple stdin read).
+~~> Make a better user experience (using the 'ncurses' library),~~
+~~> Avoid to re-print the whole image every times that the 'reload' command is called,~~
+~~> Avoid to use GNU readline (I use it because it is more advanced than a simple stdin read).~~
+> Just make an interactive GUI (help.......).
 ```
 (they all are long and hard tasks and I don't even know if I can do everything...)
 
