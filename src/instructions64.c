@@ -25,6 +25,46 @@ char *op_addr = NULL;
  *  (It was a pain to understand everything but I did learned a lot!)
  */
 
+uint64_t find_insn64(uint8_t *img, uint64_t start, uint64_t end, eydis_callback_t progress) {
+  char *prologues[] = { "\xf6\x57\xbd\xa9", "\xfd\x7b\xbf\xa9", "\xfc\x6f\xba\xa9",
+                          "\xff\x83\x00\xd1", "\xff\x43\x00\xd1", "\xff\x83\x01\xd1",
+                          "\xff\xc3\x01\xd1", "\xff\x03\x02\xd1", "\xfd\x7b\xbe\xa9",
+                          "\x7f\x23\x03\xd5", // some 64bit prologues (+ PAC)
+  };
+
+  for (; start <= end; start += 0x4) {
+    if (x == 0) {
+      for (int i = 0x0; i != sizeof(prologues) / sizeof(prologues[0]); i++) {
+        if (memcmp(&image.img[start], prologues[i], 0x4) == 0) {
+          check_data_existence(1, image.base + start);
+        }
+      }
+
+      progress(((double)start / (double)end) * 50);
+    }
+
+    addr = image.base + start;
+
+    uint32_t mem = *(uint32_t *)(img + start);
+
+    if (x == 1) print_subroutines(); // this function is guilty of the slowness of eydis...
+    // if you comment out this line, it will become a way more faster but it would not make any sense without it...
+
+    xprintf("\033[38;5;242m%s:%llx", image.filetype, addr);
+
+    if (x == 1) current_insn_hex(start);
+
+    // big kusa time
+    for (unsigned int j = 0; j != sizeof(available_insn64); j -= -1) {
+      if (available_insn64[j].insn(mem) == 1) {
+        break;
+      }
+    }
+  }
+
+  return 0;
+}
+
 unsigned highestBitSet(unsigned value) {
   unsigned result = 0;
 
@@ -71,6 +111,8 @@ int LogicalImmediate(unsigned vbit, unsigned imm_s, unsigned imm_r, uint64_t *sh
 
 unsigned int insn_is_hint(uint32_t mem) {
   if ((mem & 0xfffff01f) == 0xd503201f) {
+    if (x == 0) return 1;
+
     if (imm2(mem) > 0x20) return 0;
 
     print_mnemonic(hints_mnemonics[imm2(mem)]);
@@ -94,6 +136,8 @@ unsigned int insn_is_unknown(uint32_t mem) {
 
 unsigned int insn_is_add_sub_immediate(uint32_t mem) {
   if ((mem & 0x1f000000) == 0x11000000) {
+    if (x == 0) return 1;
+
     if (aBit(mem) && rd(mem) == 0x1f) {
       print_mnemonic(opr(mem) ? "cmp" : "cmn");
     } else {
@@ -134,6 +178,8 @@ unsigned int insn_is_add_sub_immediate(uint32_t mem) {
 
 unsigned int insn_is_add_sub_extend_register(uint32_t mem) {
   if ((mem & 0x1fe00000) == 0x0b200000) {
+    if (x == 0) return 1;
+
     if (imm3(mem) > 4) return 0;
 
     if (aBit(mem) && rd(mem) == 1) {
@@ -176,6 +222,8 @@ unsigned int insn_is_add_sub_extend_register(uint32_t mem) {
 
 unsigned int insn_is_add_sub_shift_register(uint32_t mem) {
   if ((mem & 0x1f200000) == 0x0b000000) {
+    if (x == 0) return 1;
+
     if (!is64Bit(mem) && imm6(mem) & 0x20) return 0;
 
     if (sh0(mem) == 0x3) return 0;
@@ -268,6 +316,8 @@ unsigned int insn_is_tb_n_z(uint32_t mem) {
 
 unsigned int insn_is_mov(uint32_t mem) {
   if ((mem & 0x1f800000) == 0x12800000) {
+    if (x == 0) return 1;
+
     if (opc(mem) == 1) return 0;
 
     if (!is64Bit(mem) && hw0(mem) >= 0x2) return 0;
@@ -360,6 +410,8 @@ unsigned int insn_is_b_conditional(uint32_t mem) {
 
 unsigned int insn_is_unconditional(uint32_t mem) {
   if ((mem & 0xfe1f0000) == 0xd61f0000) {
+    if (x == 0) return 1;
+
     unsigned mnemonic = (op7(mem) << 1) | mBit(mem);
 
     if (rm(mem) == 0x1f && (imms(mem) & 0x3e) == 0x2) {
@@ -404,6 +456,8 @@ unsigned int insn_is_unconditional(uint32_t mem) {
 
 unsigned int insn_is_conditional_select(uint32_t mem) {
   if ((mem & 0x1fe00000) == 0x1a800000) {
+    if (x == 0) return 1;
+
     unsigned opnb = (opr(mem) << 0x1 | (op3(mem) & 0x1));
 
     if (aBit(mem)) return 0;
@@ -460,6 +514,8 @@ unsigned int insn_is_conditional_select(uint32_t mem) {
 
 unsigned int insn_is_data_processing(uint32_t mem) {
   if ((mem & 0x5fe00000) == 0x5ac00000) {
+    if (x == 0) return 1;
+
     if (aBit(mem)) return 0;
 
     if (rm(mem) == 1 && is64Bit(mem) && imms(mem) <= 0x1001) {
@@ -514,6 +570,8 @@ unsigned int insn_is_bitwise_shift_register(uint32_t mem) {
   unsigned opn = opc(mem) << 1;
 
   if ((mem & 0x1f000000) == 0x0a000000) {
+    if (x == 0) return 1;
+
     if (!is64Bit(mem) && imm6(mem) & 0x20) return 0;
 
     if ((opn == 0x3) && (rd(mem) == 0x1f)) {
@@ -556,6 +614,8 @@ unsigned int insn_is_bitwise_shift_register(uint32_t mem) {
 
 unsigned int insn_is_bitwise_immediate(uint32_t mem) {
   if ((mem & 0x1f800000) == 0x12000000) {
+    if (x == 0) return 1;
+
     if (!is64Bit(mem) && vBit(mem)) return 0;
 
     unsigned len = highestBitSet(vBit(mem) << 0x6 | (imms(mem) ^ 0x3f));
@@ -610,6 +670,8 @@ unsigned int insn_is_loadstore_register_pair(uint32_t mem) {
   const char *mnemonic = NULL;
 
   if ((mem & 0x3a000000) == 0x28000000) {
+    if (x == 0) return 1;
+
     if (!cBit(mem) && vBit(mem) && size2(mem) == 0x1) {
       mnemonic = "ldpsw";
     } else if (!cBit(mem) && vBit(mem) && !sBit(mem) && !o2(mem)) {
@@ -690,6 +752,8 @@ unsigned int insn_is_loadstore_unsigned_immediate(uint32_t mem) {
   unsigned scale;
 
   if ((mem & 0x3b000000) == 0x39000000) {
+    if (x == 0) return 1;
+
     unsigned opnb = (size2(mem) << 0x3) | (cBit(mem) << 0x2) | sh0(mem);
 
     print_mnemonic(un_signed_mnemonics[opnb]);
@@ -734,6 +798,8 @@ unsigned int insn_is_loadstore_register(uint32_t mem) {
   unsigned scale;
 
   if ((mem & 0x3b200c00) == 0x38200800) {
+    if (x == 0) return 1;
+
     unsigned opnb = (size2(mem) << 0x3) | (cBit(mem) << 0x2) | sh0(mem);
 
     print_mnemonic(un_signed_mnemonics[opnb]);
@@ -798,6 +864,8 @@ unsigned int insn_is_loadstore_immediate(uint32_t mem) {
   unsigned opnb = (size2(mem) << 0x3) | (cBit(mem) << 0x2) | sh0(mem);
 
   if ((mem & 0x3b200000) == 0x38000000) {
+    if (x == 0) return 1;
+
     if (op3(mem) & 0x1) {
       mnemonic = un_signed_mnemonics[opnb];
     } else if (!op3(mem)) {
@@ -873,6 +941,8 @@ unsigned int insn_is_loadstore_immediate(uint32_t mem) {
 
 unsigned int insn_is_sysinc(uint32_t mem) {
   if ((mem & 0xfffff01f) == 0xd503301f) {
+    if (x == 0) return 1;
+
     if (barrier_mnemonics[op2(mem)] == NULL) return 0;
 
     print_mnemonic(barrier_mnemonics[op2(mem)]);
@@ -903,6 +973,8 @@ unsigned int insn_is_msr_immediate(uint32_t mem) {
   char *statefield = NULL;
 
   if ((mem & 0xfff8f01f) == 0xd500401f) {
+    if (x == 0) return 1;
+
     switch (op2(mem)) {
       case 3: statefield = "uao"; break;
       case 4: statefield = "pan"; break;
@@ -961,6 +1033,8 @@ unsigned int insn_is_at_dc_msr(uint32_t mem) {
     }
   }
 
+  if (x == 0) return 1;
+
   if (name != NULL && def != NULL) {
     print_options(name);
 
@@ -982,6 +1056,8 @@ unsigned int insn_is_at_dc_msr(uint32_t mem) {
 
 unsigned int insn_is_mrs(uint32_t mem) {
   if (find_sys_reg(mem, 0xfff00000, 0xd5300000, "mrs") == 1) {
+    if (x == 0) return 1;
+
     if (name == NULL && def == NULL) return 0;
 
     print_register(rd(mem), 1);
@@ -1002,6 +1078,8 @@ unsigned int insn_is_mrs(uint32_t mem) {
 
 unsigned int insn_is_tlbi(uint32_t mem) {
   if (find_sys_reg(mem, 0xfff8f000, 0xd5088000, "tlbi") == 1) {
+    if (x == 0) return 1;
+
     if (name == NULL && def == NULL) return 0;
 
     print_options(name);
@@ -1020,6 +1098,8 @@ unsigned int insn_is_tlbi(uint32_t mem) {
 
 unsigned int insn_is_process(uint32_t mem) {
   if ((mem & 0x5fe00000) == 0x1ac00000) {
+    if (x == 0) return 1;
+
     if (aBit(mem)) return 0;
 
     if (!(imms(mem) & 0x3e)) return 0;
@@ -1052,6 +1132,8 @@ unsigned int insn_is_mem_related(uint32_t mem) {
   unsigned opnb = ((mem >> 25) & 0x30) | ((mem >> 20) & 0xe) | ((mem >> 15) & 0x1);
 
   if ((mem & 0x1f000000) == 0x1b000000) {
+    if (x == 0) return 1;
+
     if (opc(mem)) return 0;
 
     if (opnb > 0xC) return 0;
@@ -1096,6 +1178,8 @@ unsigned int insn_is_bitfield(uint32_t mem) {
   int is_stx = 0;
 
   if ((mem & 0x1f800000) == 0x13000000) {
+    if (x == 0) return 1;
+
     if (opc(mem) == 0x3) return 0;
 
     if (is64Bit(mem) != vBit(mem)) return 0;
@@ -1233,6 +1317,8 @@ unsigned int insn_is_bitfield(uint32_t mem) {
 
 unsigned int insn_is_float_point_int_conversion(uint32_t mem) {
   if ((mem & 0x5f20fc00) == 0x1e200000) {
+    if (x == 0) return 1;
+
     if (aBit(mem)) return 0;
 
     if (sh0(mem) == 0x3) return 0;
@@ -1293,6 +1379,8 @@ unsigned int insn_is_float_point_int_conversion(uint32_t mem) {
 
 unsigned int insn_is_float_point_data_processing(uint32_t mem) {
   if ((mem & 0x5f207c00) == 0x1e204000) {
+    if (x == 0) return 1;
+
     if (opd(mem)) return 0;
 
     if (aBit(mem)) return 0;
@@ -1329,6 +1417,8 @@ unsigned int insn_is_adrp(uint32_t mem) {
   unsigned opnb = ((int64_t)((imm1(mem) << 0x2) | opc(mem)) << 0x2b) >> 0x1f;
 
   if ((mem & 0x9f000000) == 0x90000000) {
+    if (x == 0) return 1;
+
     print_mnemonic("adrp");
 
     print_register(rd(mem), 1);
@@ -1353,6 +1443,8 @@ unsigned int insn_is_adr(uint32_t mem) {
   unsigned opnb = ((int64_t)((imm1(mem) << 0x2) | opc(mem)) << 0x2b) >> 0x2b;
 
   if ((mem & 0x9f000000) == 0x10000000) {
+    if (x == 0) return 1;
+
     print_mnemonic("adr");
 
     print_register(rd(mem), 1);
@@ -1378,6 +1470,8 @@ unsigned int insn_is_ldr_litteral(uint32_t mem) {
   bool is_64bit = ((mem & 0x40000000) != 0) && !is_ldrsw;
 
   if ((mem & 0x3f000000) == 0x18000000) {
+    if (x == 0) return 1;
+
     print_mnemonic(is_ldrsw ? "ldrsw" : "ldr");
 
     print_register(rd(mem), is_64bit ? 1 : 0);
@@ -1385,6 +1479,72 @@ unsigned int insn_is_ldr_litteral(uint32_t mem) {
     print_separator();
 
     print_unsigned_immediate64(addr + imm19(mem));
+
+    print_end_of_line();
+
+    return 1;
+  }
+
+  return 0;
+}
+
+unsigned int insn_is_load_atomic(uint32_t mem) {
+  if ((mem & 0x3f208C00) == 0x38200000) {
+    if (x == 0) return 1;
+
+    unsigned op = (((mem >> 12) & 0x7) << 4) | (size2(mem) << 2) | sh0(mem);
+
+    char *mne = load_atomics_mnemonics[op];
+
+    if (!mne) return 0;
+
+    print_mnemonic(mne);
+
+    print_register(rm(mem), is64Bit(mem));
+
+    print_separator();
+
+    print_register(rd(mem), is64Bit(mem));
+
+    print_separator();
+
+    print_character('[');
+
+    print_register(rn(mem), is64Bit(mem));
+
+    print_character(']');
+
+    print_end_of_line();
+
+    return 1;
+  }
+
+  return 0;
+}
+
+unsigned int insn_is_swap_atomic(uint32_t mem) {
+  if ((mem & 0x3f20fc00) == 0x38208000) {
+    if (x == 0) return 1;
+
+    char *mne = atomics_swap_mnemonics[(size2(mem) << 2) | sh0(mem)];
+
+    if (!mne) return 0;
+
+    print_mnemonic(name);
+
+    print_register(rm(mem), is64Bit(mem));
+
+    print_separator();
+
+    print_register(rd(mem), is64Bit(mem));
+
+    print_separator();
+
+    print_character('[');
+
+    print_register(rn(mem), is64Bit(mem));
+
+    print_character(']');
 
     print_end_of_line();
 

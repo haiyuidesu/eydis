@@ -13,6 +13,20 @@
 
 /************** utils **************/
 
+void subprint(uint64_t where) {
+  xprintf("\033[38;5;242m%s:%llx  ; =================== S U B R O U T I N E =======================\n"
+          "\033[38;5;242m%s:%llx\n",
+          image.filetype, where, image.filetype, where);
+}
+
+void current_insn_hex(unsigned int where) {
+  printf("\t\t");
+
+  for (unsigned int i = where; i <= where + 0x3; i++) {
+    printf("\033[30;0m%02x ", ((unsigned char *)image.img)[i]);
+  }
+}
+
 void xprintf(const char *what, ...) {
   if (x == 1) {
     va_list va;
@@ -75,7 +89,7 @@ int exit_eydis(void) {
 
   if (access(eydis_database, F_OK) != -1) {
     while (1) {
-      choose = readline("\e[0m\n[eydis]: saving eydis database [y | n] ? > ");
+      choose = readline("\n\e[0m\n[eydis]: saving eydis database [y | n] ? > ");
 
       if (!strcasecmp(choose, "n")) {
         remove(eydis_database);
@@ -132,16 +146,6 @@ int print_file_strings(uint64_t address) {
       if (p - buffer >= 4) {
         *p++ = '\0';
 
-        // these strings should not be presents
-        char *str_to_avoid[] = { "160D", "A@qA", "@y `@y", "Qli(", "E@9(", "M@97",
-                                 "'A)*)", "'A)*","Q)|@", "R*A@", "Rh&@", "*QK}@", "I58`" };
-
-        for (int i = 0; i != 0xD; i++) {
-          if (!strcmp(buffer, str_to_avoid[i])) {
-            goto end;
-          }
-        }
-
         xprintf("; \033[38;5;242m\"%s\"\033[30;0m", buffer);
 
         fclose(fd);
@@ -153,7 +157,6 @@ int print_file_strings(uint64_t address) {
     }
   }
 
-end:
   fclose(fd);
 
   return -1;

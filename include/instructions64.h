@@ -6,6 +6,7 @@ extern "C" {
 #endif
 
 #include <stdint.h>
+#include <include/disarm.h>
 #include <include/definitions.h>
 
 extern char *op_addr;
@@ -111,39 +112,41 @@ unsigned int insn_is_hint(uint32_t mem);
 unsigned int insn_is_mov(uint32_t mem);
 
 static const current_insn_t available_insn64[] = {
-  { insn_is_adr },
-  { insn_is_mov },
-  { insn_is_b_l },
-  { insn_is_mrs },
-  { insn_is_adrp },
-  { insn_is_tlbi },
-  { insn_is_hint },
-  { insn_is_sysinc },
-  { insn_is_cb_n_z },
-  { insn_is_tb_n_z },
-  { insn_is_process },
-  { insn_is_bitfield },
-  { insn_is_at_dc_msr },
-  { insn_is_mem_related },
-  { insn_is_ldr_litteral },
-  { insn_is_b_conditional },
-  { insn_is_msr_immediate },
-  { insn_is_unconditional },
-  { insn_is_bitwise_immediate },
-  { insn_is_loadstore_register },
-  { insn_is_conditional_select },
-  { insn_is_loadstore_immediate },
-  { insn_is_add_sub_shift_register },
-  { insn_is_loadstore_register_pair },
-  { insn_is_float_point_int_conversion },
-  { insn_is_loadstore_unsigned_immediate },
-  { insn_is_float_point_data_processing },
-  { insn_is_add_sub_extend_register },
-  { insn_is_bitwise_shift_register },
-  { insn_is_add_sub_immediate },
-  { insn_is_data_processing },
-  { insn_is_unknown },
+  { insn_is_adr, NULL },
+  { insn_is_mov, NULL },
+  { insn_is_b_l, NULL },
+  { insn_is_mrs, NULL },
+  { insn_is_adrp, NULL },
+  { insn_is_tlbi, NULL },
+  { insn_is_hint, NULL },
+  { insn_is_sysinc, NULL },
+  { insn_is_cb_n_z, NULL },
+  { insn_is_tb_n_z, NULL },
+  { insn_is_process, NULL },
+  { insn_is_bitfield, NULL },
+  { insn_is_at_dc_msr, NULL },
+  { insn_is_mem_related, NULL },
+  { insn_is_ldr_litteral, NULL },
+  { insn_is_b_conditional, NULL },
+  { insn_is_msr_immediate, NULL },
+  { insn_is_unconditional, NULL },
+  { insn_is_bitwise_immediate, NULL },
+  { insn_is_loadstore_register, NULL },
+  { insn_is_conditional_select, NULL },
+  { insn_is_loadstore_immediate, NULL },
+  { insn_is_add_sub_shift_register, NULL },
+  { insn_is_loadstore_register_pair, NULL },
+  { insn_is_float_point_int_conversion, NULL },
+  { insn_is_loadstore_unsigned_immediate, NULL },
+  { insn_is_float_point_data_processing, NULL },
+  { insn_is_add_sub_extend_register, NULL },
+  { insn_is_bitwise_shift_register, NULL },
+  { insn_is_add_sub_immediate, NULL },
+  { insn_is_data_processing, NULL },
+  { insn_is_unknown, NULL },
 };
+
+uint64_t find_insn64(uint8_t *img, uint64_t start, uint64_t end, eydis_callback_t progress);
 
 #ifdef __cplusplus
 }

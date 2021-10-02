@@ -39,9 +39,13 @@ int save_file(void);
 
 int exit_eydis(void);
 
+void subprint(uint64_t where);
+
 void xprintf(const char *what, ...);
 
 int print_file_strings(uint64_t address);
+
+void current_insn_hex(unsigned int where);
 
 int patch_image(uint64_t address, uint64_t patch);
 

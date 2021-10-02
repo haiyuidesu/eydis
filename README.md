@@ -1,6 +1,6 @@
 # eydis
 
-A lightweight (basic and slow) ARM reverse engineering tool.
+A lightweight (basic and slow) ARM (little endianness) reverse engineering tool.
 
 ## I.  Requierements
 1. macOS/Linux,
@@ -18,6 +18,7 @@ usage: eydis [-d] <image>
    -e [offset]	end to a specified offset,     # "-e 0x200"
 
    -a    analyze the aera until an ending offset. # use it with the '-e' flag!
+                                                  # also, be careful when this flag is used since it can skip some routine beginnings. 
 ```
 
 By the way, eydis has a built-in shell:
@@ -77,11 +78,12 @@ Then when everything is done, you can use the `reload` command to display or `sa
 ## III.  The 'TODO' list
 ```
 > Optimize the most possible the whole program,
-~~> Make a better user experience (using the 'ncurses' library),~~
-~~> Avoid to re-print the whole image every times that the 'reload' command is called,~~
-~~> Avoid to use GNU readline (I use it because it is more advanced than a simple stdin read).~~
 > Just make an interactive GUI (help.......).
 ```
+~~Make a better user experience (using the 'ncurses' library),~~
+~~Avoid to re-print the whole image every times that the 'reload' command is called,~~
+~~Avoid to use GNU readline (I use it because it is more advanced than a simple stdin read).~~
+
 (they all are long and hard tasks and I don't even know if I can do everything...)
 
 ## IV.  Notes
@@ -92,3 +94,5 @@ Then when everything is done, you can use the `reload` command to display or `sa
 - A 32bit support is planned but not for now (however, if it is absolutely necessary I will do my best),
 
 - This project is still under development so please enjoy at least the time you will spend with it (^v^)
+
+- The 32bit support is incomplete and may output wrong instructions, I leave it there anyways in the hope to fix it later.

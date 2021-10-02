@@ -9,13 +9,14 @@ extern "C" {
 
 #include <include/utils.h>
 
-extern uint64_t addr;
-
 extern char *def;
 extern char *name;
 
+extern uint64_t addr;
+
 typedef struct {
   unsigned int (*insn)(uint32_t);
+  unsigned int (*insn16)(uint16_t);
 } current_insn_t;
 
 /***************** arm64 mnemonics *****************/
@@ -36,13 +37,54 @@ static char *unconditional_mnemonics[8] = { "br", "blr", "ret", NULL, "eret", "d
 
 static char *data_process_mnemonics[8] = { "rbit", "rev16", "rev32", "rev", "clz", "cls", NULL, NULL };
 
+static char *bitwise_mnemonics_register_32[16] = {
+  "and", "eor", "lsl", "lsr", "asr", "adc", "sbc", "ror", "tst", "rsb", "cmp", "cmn", "orr", "mul", "bic", "mvn"
+};
+
+static char *data_load_mnemonics_32[8] = { "ldrb", "ldrh", "ldr", NULL, "ldrsb", "ldrsh" };
+
+static char *bitwise_mnemonics_logical_32[16] = {
+  "and", "bic", "orr", "orn", "eor", NULL, "pkh", NULL, "add", NULL, "adc", "sbc", NULL, "sub", "rsb", NULL
+};
+
+static char *extract_bit_names_32[16] = {
+  "addw", NULL, "movw", NULL, NULL, "subw", "movt", NULL,
+  "ssat", "ssat16", "sbfx", "bfi", "usat" , "usat16", "ubfx", NULL
+};
+
+static char *long_multiple_device_mnemonics_32[8] = {
+  "smull", "sdiv", "umull", "udiv", "smlal", "smlsld", "umlal", NULL
+};
+
+static char *long_multiple_device_mnemonics_smlal_32[4] = {
+  "smlalbb", "smlalbt", "smlaltb", "smlaltt"
+};
+
+static char *long_multiple_device_mnemonics_smlald_32[2] = {
+  "smlald", "smlaldx"
+};
+
+static char *long_multiple_device_mnemonics_smlsld_32[2] = {
+  "smlsld", "smlsldx"
+};
+
+static char *data_store_single_mnemonics_32[4] = { "strb", "strh", "str", NULL };
+
+static char *loadstore_register_immediate_32[6] = { "str", "ldr", "strb",  "ldrb", "strh", "ldrh" };
+
+static char *loadstore_unsigned_mnemonics_32[8] = { "str", "strh", "strb", "ldrsb", "ldr", "ldrh", "ldrb", "ldrsh" };
+
 static char *extend_bit_names[8] = { "uxtb", "uxth", "uxtw", "uxtx", "sxtb", "sxth", "sxtw", "sxtx" };
+
+static char *extend_bit_names_32[8] = { "sxth", "sxb", "uxth", "uxtb", "rev", "rev16", "revsh" };
 
 static char *bitwise_mnemonics[8] = { "and", "bic", "orr", "orn", "eor", "eon", "ands", "bics" };
 
 static char *extract_bit_names[3] = { "sbfx", "bfxil", "ubfx" };
 
 static char *insert_bit_names[3] = { "sbfiz", "bfi", "ubfiz" };
+
+static char *special_registers32[3] = { "sp", "lr", "pc" };
 
 static char *bitmove_names[3] = { "sbfm", "bfm", "ubfm" };
 
@@ -70,6 +112,11 @@ static char *b_condition[16] = {
 static char *float_point_data_processing_mnemonics[16] = {
   "fmov", "fabs", "fneg", "fsqrt", "fcvt", "fcvt", NULL, "fcvt",
   "frintn", "frintp", "frintm", "frintz", "frinta", NULL, "frintx", "frinti"
+};
+
+static char *unmodified_immediate_mnemonics[16] = {
+  "addw", NULL, "movw", NULL, NULL, "subw", "movt", NULL, "ssat",
+  "ssat16", "sbfx", "bfi", "usat" , "usat16", "ubfx", NULL
 };
 
 static char *mem_mnemonics[16] = {
@@ -129,7 +176,36 @@ static char *hints_mnemonics[32] = {
   "paciaz", "paciasp", "pacibz", "pacibsp", "autiaz", "autiasp", "autibz", "autibsp"
 };
 
-/***************** prints 64 *****************/
+static char *load_atomics_mnemonics[64] = {
+  "ldaddb", "ldaddlb", "ldaddab", "ldaddalb",
+  "ldaddh", "ldaddlh", "ldaddah", "ldaddalh",
+  "ldadd", "ldaddl", "ldadda", "ldaddal",
+  "ldadd", "ldaddl", "ldadda", "ldaddal",
+
+  "ldclrb", "ldclrlb", "ldclrab", "ldclralb",
+  "ldclrh", "ldclrlh", "ldclrah", "ldclralh",
+  "ldclr", "ldclrl", "ldclra", "ldclral",
+  "ldclr", "ldclrl", "ldclra", "ldclral",
+
+  "ldeorb", "ldeorlb", "ldeorab", "ldeoralb",
+  "ldeorh", "ldeorlh", "ldeorah", "ldeoralh",
+  "ldeor", "ldeorl", "ldeora", "ldeoral",
+  "ldeor", "ldeorl", "ldeora", "ldeoral",
+
+  "ldsetb", "ldsetlb", "ldsetab", "ldsetalb",
+  "ldseth", "ldsetlh", "ldsetah", "ldsetalh",
+  "ldset", "ldsetl", "ldseta", "ldsetal",
+  "ldset", "ldsetl", "ldseta", "ldsetal",
+};
+
+static char *atomics_swap_mnemonics[16] = {
+  "swpb", "swplb", "swpab", "swpalb",
+  "swph", "swplh", "swpah", "swpalh",
+  "swp", "swpl", "swpa", "swpal",
+  "swp", "swpl", "swpa", "swpal",
+};
+
+/***************** prints *****************/
 
 static inline void print_separator(void) {
   xprintf(", ");
@@ -187,6 +263,18 @@ static inline void print_register_sub(char *where) {
 
 static inline void print_register(unsigned reg, unsigned is64Bit) {
   xprintf("\033[0;36m%c%u\033[30;0m", is64Bit ? 'x' : 'w', reg);
+}
+
+static inline void print_register32(unsigned reg) {
+  reg &= 0xf;
+
+  if (reg > 0xC) {
+    xprintf("\033[0;36m%s\033[30;0m", special_registers32[reg - 0xD]);
+
+    return;
+  }
+
+  xprintf("\033[0;36mr%u\033[30;0m", reg);
 }
 
 static inline void print_selected_register(unsigned reg, unsigned selected) {

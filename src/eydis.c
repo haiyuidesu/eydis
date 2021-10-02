@@ -13,9 +13,9 @@
 
 config_t image;
 
-char *function = NULL;
+long arch_flags = 0;
 
-#define which_eydis "1.1"
+char *function = NULL;
 
 char eydis_database[256];
 
@@ -41,7 +41,7 @@ void usage(char *argv[]) {
   printf("   -e [offset]\tend to a specified offset,\n");
   printf("   -s [offset]\tstart from a specified offset,\n\n");
 
-  printf("   -a\t\tanalyze the aera until an ending offset.\n\n");
+  printf("   -a\t\tanalyze the aera until an ending offset.\n");
 
   exit(-1);
 }
@@ -51,14 +51,10 @@ int main(int argc, char *argv[]) {
   int spec = 0;
   int version = 0;
 
-  image.analyze = 0;
-
+  image.analyze = 0x0;
   image.start = 0x0;
   image.base = 0x0;
   image.end = 0x0;
-
-  printf("\n\t\t\t\t\t   eydis disassembler\n");
-  printf("\t\t\t\t\tversion %s | haiyuidesu\n\n", which_eydis);
 
   if (argc < 3) usage(argv);
 
@@ -122,9 +118,17 @@ int main(int argc, char *argv[]) {
     arg_counter--;
   }
 
-  if (dis) {
-    printf("[%s]: starting...", __func__);
+  printf("\n=======================================\n"
+         "::\n"
+         ":: eydis disassembler, haiyuidesu.\n"
+         "::\n"
+         "::\tBUILD_TAG: %s\n"
+         "::\n"
+         "::\tBUILD_STYLE: RELEASE\n"
+         "::\n"
+         "=======================================\n\n", which_eydis);
 
+  if (dis) {
     if (image.analyze == 1 && image.end <= 0) {
       printf("\n\n[%s]: refusing to avoid a full analysis without any ending limit set.\n", __func__);
       return -1;
@@ -173,10 +177,10 @@ int main(int argc, char *argv[]) {
         case 0x5ff00000:
         case 0xbff00000:
         case 0x10000000:
-          printf("[%s]: the 32bit is not avalaible for the moment, please come back later!\n", __func__);
-          free(image.img);
-          return -1;
+          arch_flags |= EYDIS_ARM;
+          break;
         default:
+          arch_flags |= EYDIS_ARM64;
           image.base = *(uint64_t *)(image.img + ((version >= 6723) ? 0x300 : 0x318));
           break;
       }
@@ -186,14 +190,32 @@ int main(int argc, char *argv[]) {
       image.filetype = "SEPROM";
 
       version = atoi(image.img + 0xC2B);
+
+      arch_flags |= EYDIS_ARM64;
     } else if (memmem(image.img, image.length, "\x65\x53\x45\x50", 0x4)) {
       image.base = 0x10000000;
 
       image.filetype = "SEPROM";
 
       version = atoi(image.img + 0x80C);
+
+      arch_flags |= EYDIS_ARM;
     } else {
       image.filetype = "ROM";
+
+      while (1) {
+        char *which_arch = readline("\n\n[eydis]: disassembling as 64bit code? [y | n] ? > ");
+
+        if (!strcasecmp(which_arch, "n")) {
+          arch_flags |= EYDIS_ARM;
+          break;
+        } else if (!strcasecmp(which_arch, "y")) {
+          arch_flags |= EYDIS_ARM64;
+          break;
+        }
+
+        continue;
+      }
 
       version = 0;
     }
