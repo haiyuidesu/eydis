@@ -10,7 +10,7 @@ A lightweight (basic and slow) ARM (little endianness) reverse engineering tool.
 ## II.  Usage
 
 ```
-usage: eydis [-d] <image>
+usage: eydis [-d] <image> [args]
    -w [file]	specify a database,
    -b [addr]	specify the rebase address,    # "-b 0x100000000"
 

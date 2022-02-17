@@ -1,27 +1,21 @@
 .PHONY: all clean install debug
 
-SRC          = src
 TARGET       = eydis
 
 INST         = $(shell uname -m)
 ARCH         = $(shell uname -s)
+SRC          = $(wildcard src/*.c)
 
-CFLAGS       += 
+CFLAGS       += -Wall
 CFLAGS       += -DSQLITE_ENABLE_FTS4 -Wall -Wno-format -Wunused-variable
-CFLAGS       += -c -I. -g3 -o
+CFLAGS       += -c -I. -O3 -g3 -o
 
 LDFLAGS      =
 LDLIBS       = -lsqlite3 -lreadline
 
 INSTALL      = /usr/local/bin
 
-OBJECTS      = $(SRC)/utils.o \
-               $(SRC)/shell.o \
-               $(SRC)/instructions64.o \
-               $(SRC)/instructions32.o \
-               $(SRC)/database.o \
-               $(SRC)/disarm.o \
-               $(SRC)/eydis.o
+OBJECTS      = $(SRC:.c=.o)
 
 default : all
 
@@ -32,7 +26,7 @@ $(TARGET): $(OBJECTS)
 	@$(CC) -o $@ $(LDFLAGS) $^ $(LDLIBS)
 	@echo "OK: built $(TARGET) for $(ARCH) ($(INST))."
 
-$(SRC)/%.o: $(SRC)/%.c
+src/%.o: src/%.c
 	@echo "CC 	$<"
 	@$(CC) $< $(CFLAGS) $@
 
@@ -42,4 +36,4 @@ install: $(TARGET)
 
 clean:
 	@echo "OK: cleaned few files"
-	@rm -rf $(TARGET) $(SRC)/*.o .e* $(INSN)/*.o
+	@rm -rf $(TARGET) src/*.o .e*
