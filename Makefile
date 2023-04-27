@@ -1,39 +1,43 @@
-.PHONY: all clean install debug
+# make -j$(expr $(nproc) / 2)
+# ^ build with multi-threading to speed up the compilation
 
+.PHONY: all clean install
+
+CXX          = g++
 TARGET       = eydis
 
 INST         = $(shell uname -m)
 ARCH         = $(shell uname -s)
-SRC          = $(wildcard src/*.c)
+SRC          := $(shell find . -name "*.cpp")
 
-CFLAGS       += -Wall
-CFLAGS       += -DSQLITE_ENABLE_FTS4 -Wall -Wno-format -Wunused-variable
-CFLAGS       += -c -I. -O3 -g3 -o
+CXXFLAGS     += -Wall -Wextra -Wpedantic
+CXXFLAGS     += -DOPT5
+CXXFLAGS     += -std=c++20 -c -I. -O2 -g3 -o
 
 LDFLAGS      =
-LDLIBS       = -lsqlite3 -lreadline
+LDLIBS       = -lstdc++
 
 INSTALL      = /usr/local/bin
 
-OBJECTS      = $(SRC:.c=.o)
+OBJECTS      := $(SRC:%.cpp=%.o)
 
-default : all
-
-all : $(TARGET)
+default : $(TARGET)
 
 $(TARGET): $(OBJECTS)
 	@echo "LD 	$(TARGET)"
-	@$(CC) -o $@ $(LDFLAGS) $^ $(LDLIBS)
-	@echo "OK: built $(TARGET) for $(ARCH) ($(INST))."
+	@$(CXX) -o $@ $(LDFLAGS) $^ $(LDLIBS)
+	@echo "[OK]: built $(TARGET) for $(ARCH) ($(INST))."
 
-src/%.o: src/%.c
-	@echo "CC 	$<"
-	@$(CC) $< $(CFLAGS) $@
+%.o: %.cpp
+	@echo "CXX 	$<"
+	@$(CXX) $< $(CXXFLAGS) $@
 
 install: $(TARGET)
+	@echo "[INFO]: installing $(TARGET) binary..."
 	@install -v $(TARGET) $(INSTALL)
-	@echo "OK: installed $(TARGET)."
+	@echo "[OK]: installed $(TARGET)."
 
 clean:
-	@echo "OK: cleaned few files"
-	@rm -rf $(TARGET) src/*.o .e*
+	@rm -rf $(TARGET)
+	@$(shell find . -name "*.o" -delete)
+	@echo "[OK]: cleaned few files"
