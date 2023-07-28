@@ -39,8 +39,8 @@ void Eydis::analyzeImage(bool isAnalyzing)
 */
 void Eydis::findRoutines(int where)
 {
-    std::list<std::unique_ptr<Eydis>> list = makeInstruction(true);
-    // 'makeInstruction' will setup a list of insn that contains routines addresses as operands ('bl', 'cbz', ...).
+    std::list<std::unique_ptr<Eydis>> list = makeInstruction<BL, BCond, BComp, BTest>();
+    // 'makeInstruction' will setup a list of insn that contains routines addresses as operands.
 
     std::array<str_t, 0x4> prologues = {
         "\x7f\x23\x03\xd5", "\xbe\xa9", "\xbf\xa9", "\xbd\xa9"
@@ -71,7 +71,12 @@ void Eydis::findRoutines(int where)
 */
 void Eydis::disasm(void)
 {
-    std::list<std::unique_ptr<Eydis>> list = makeInstruction(false);
+    std::list<std::unique_ptr<Eydis>> list = makeInstruction<BL, BCond, BComp, BTest,
+        MSRImm, Return, CalcImm, MoveWide, LoadStorePairRegister, LDRLiteral,
+        PCRelativeCalc, CalcShiftRegister, ConditionalSelect, LoadStoreRegister,
+        CalcExtendRegister, UnsignedLoadStoreOffset, LoadStoreUnsignedImm, DataProcessFloat,
+        BitwiseRegister, DataProcessNext, DataProcess, Multiply, Hint, memBarrier, LoadAtomic, SwapAtomic, Unknow>();
+    // all instructions to find will be added there, just enter the insn class name.
 
     for (auto &insn : list) {
         if (insn->getValidity() == 1) {
@@ -134,6 +139,8 @@ int Eydis::setupEydis(const char **argv)
     for (auto &str : infos) {
         if (this->setImgInfos(str[0], str[1]) == 0) break;
     }
+
+    for (auto &str : infos) str.clear();
 
     infos.clear();
 

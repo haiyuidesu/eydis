@@ -9,6 +9,7 @@
 #ifndef GENERAL_HPP
     #define GENERAL_HPP
     #include <list>
+    #include <memory>
     #include "BL.hpp"
     #include "Hint.hpp"
     #include "BTest.hpp"
@@ -40,41 +41,14 @@
             }
     };
 
-    inline std::list<std::unique_ptr<Eydis>> makeInstruction(bool isAnalyzing)
+    template<typename ... Instructions>
+    inline std::list<std::unique_ptr<Eydis>> makeInstruction(void)
     {
         std::list<std::unique_ptr<Eydis>> list;
 
-        list.emplace_back(new BL {});
-        list.emplace_back(new BCond {});
-        list.emplace_back(new BComp {});
-        list.emplace_back(new BTest {});
-
-        if (isAnalyzing == false) {
-            list.emplace_back(new MSRImm {});
-            list.emplace_back(new Return {});
-            list.emplace_back(new CalcImm {});
-            list.emplace_back(new MoveWide {});
-            list.emplace_back(new LoadStorePairRegister {});
-            list.emplace_back(new LDRLiteral {});
-            list.emplace_back(new PCRelativeCalc {});
-            list.emplace_back(new CalcShiftRegister {});
-            list.emplace_back(new ConditionalSelect {});
-            list.emplace_back(new LoadStoreRegister {});
-            list.emplace_back(new CalcExtendRegister {});
-            list.emplace_back(new UnsignedLoadStoreOffset {});
-            list.emplace_back(new LoadStoreUnsignedImm {});
-            list.emplace_back(new DataProcessFloat {});
-            list.emplace_back(new BitwiseRegister {});
-            list.emplace_back(new DataProcessNext {});
-            list.emplace_back(new DataProcess {});
-            list.emplace_back(new Multiply {});
-            list.emplace_back(new Hint {});
-            list.emplace_back(new memBarrier {});
-            list.emplace_back(new LoadAtomic {});
-            list.emplace_back(new SwapAtomic {});
-            list.emplace_back(new Unknow {}); // no insn were detected then.
-        }
+        (list.emplace_back(std::move(std::make_unique<Instructions>())), ...);
 
         return list;
     }
+
 #endif
