@@ -8,18 +8,7 @@
 
 #ifndef IEYDIS_HPP
     #define IEYDIS_HPP
-    #include <list>
-    #include <mutex>
-    #include <array>
-    #include <future>
-    #include <vector>
-    #include <memory>
-    #include <cstdio>
     #include <cstring>
-    #include <istream>
-    #include <fstream>
-    #include <iostream>
-    #include <signal.h>
     #include <string_view>
 
     extern uint32_t _mem;
@@ -27,7 +16,6 @@
 
     typedef std::string_view str_t;
     // i had to do this in order to make things easier even if it's ugly i admit...
-
 
     class IEydis {
         public:

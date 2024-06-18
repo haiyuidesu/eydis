@@ -3,7 +3,7 @@
 
 .PHONY: all clean install
 
-CXX          = g++
+CXX          = clang++
 TARGET       = eydis
 
 INST         = $(shell uname -m)
@@ -12,16 +12,16 @@ SRC          := $(shell find . -name "*.cpp")
 
 CXXFLAGS     += -Wall -Wextra -Wpedantic
 CXXFLAGS     += -DOPT5
-CXXFLAGS     += -std=c++20 -c -I. -O2 -g3 -o
+CXXFLAGS     += -std=c++20 -I. -O2 -g3 -c
 
 LDFLAGS      =
-LDLIBS       = -lstdc++
+LDLIBS       =
 
 INSTALL      = /usr/local/bin
 
 OBJECTS      := $(SRC:%.cpp=%.o)
 
-default : $(TARGET)
+default: $(TARGET)
 
 $(TARGET): $(OBJECTS)
 	@echo "LD 	$(TARGET)"
@@ -30,7 +30,7 @@ $(TARGET): $(OBJECTS)
 
 %.o: %.cpp
 	@echo "CXX 	$<"
-	@$(CXX) $< $(CXXFLAGS) $@
+	@$(CXX) $< $(CXXFLAGS) -o $@
 
 install: $(TARGET)
 	@echo "[INFO]: installing $(TARGET) binary..."
@@ -38,6 +38,5 @@ install: $(TARGET)
 	@echo "[OK]: installed $(TARGET)."
 
 clean:
-	@rm -rf $(TARGET)
-	@$(shell find . -name "*.o" -delete)
+	@rm -f $(TARGET) $(OBJECTS)
 	@echo "[OK]: cleaned few files"

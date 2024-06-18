@@ -8,7 +8,7 @@
 
 #ifndef BL_HPP
     #define BL_HPP
-    #include "../Eydis.hpp"
+    #include <include/Eydis.hpp>
 
     //  31  30       26 25                                                   0
     // +---+-----------+-----------------------------------------------------+

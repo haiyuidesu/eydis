@@ -6,8 +6,8 @@
 //  Copyright © 2023 haiyuidesu. All rights reserved.
 //
 
-#include "../include/Eydis.hpp"
-#include "../include/instructions/General.hpp"
+#include <include/Eydis.hpp>
+#include <include/instructions/General.hpp>
 
 /* ============= database ============= */
 
@@ -39,8 +39,8 @@ void Eydis::analyzeImage(bool isAnalyzing)
 */
 void Eydis::findRoutines(int where)
 {
-    std::list<std::unique_ptr<Eydis>> list = makeInstruction<BL, BCond, BComp, BTest>();
-    // 'makeInstruction' will setup a list of insn that contains routines addresses as operands.
+    std::vector<std::unique_ptr<Eydis>> vector = makeInstruction<BL, BCond, BComp, BTest>();
+    // 'makeInstruction' will setup a vector of insn that contains routines addresses as operands.
 
     std::array<str_t, 0x4> prologues = {
         "\x7f\x23\x03\xd5", "\xbe\xa9", "\xbf\xa9", "\xbd\xa9"
@@ -53,14 +53,14 @@ void Eydis::findRoutines(int where)
         }
     }
     
-    for (auto &insn : list) {
+    for (auto &insn : vector) {
         if (insn->getValidity() == 1) {
             this->getDb()->writeDatabase(insn->getRet(), (_addr + insn->getImm()));
             break;
         }
     }
 
-    list.clear();
+    vector.clear();
 
     this->progressBar(((double)where / (double)this->getEnd()) * 100.0);
 }
@@ -71,14 +71,14 @@ void Eydis::findRoutines(int where)
 */
 void Eydis::disasm(void)
 {
-    std::list<std::unique_ptr<Eydis>> list = makeInstruction<BL, BCond, BComp, BTest,
+    std::vector<std::unique_ptr<Eydis>> vector = makeInstruction<BL, BCond, BComp, BTest,
         MSRImm, Return, CalcImm, MoveWide, LoadStorePairRegister, LDRLiteral,
         PCRelativeCalc, CalcShiftRegister, ConditionalSelect, LoadStoreRegister,
         CalcExtendRegister, UnsignedLoadStoreOffset, LoadStoreUnsignedImm, DataProcessFloat,
         BitwiseRegister, DataProcessNext, DataProcess, Multiply, Hint, memBarrier, LoadAtomic, SwapAtomic, Unknow>();
     // all instructions to find will be added there, just enter the insn class name.
 
-    for (auto &insn : list) {
+    for (auto &insn : vector) {
         if (insn->getValidity() == 1) {
             this->getDb()->readDatabase(_addr, true); // check to see if the current address is a routine's beginning
             insn->analyzeInsn(this->getType());  // 'getType()' is used to print the type of the current instance
@@ -87,7 +87,7 @@ void Eydis::disasm(void)
         }
     }
 
-    list.clear();
+    vector.clear();
 }
 
 /* ============= configuration ============= */
@@ -102,6 +102,7 @@ int Eydis::setupEydis(const char **argv)
     std::vector<std::vector<str_t>> infos = {
         { "iBoot",     "\x69\x42\x6F\x6F" },
         { "SEPROM",    "\x64\x2E\x2E\x2E\x28\x72\x6F\x6F" },
+        { "SEPROM",    "\x50\x52\x4f\x4d\x2d" },
         { "SecureROM", "\x72\x65\x52\x4F" }
     };
 
@@ -153,8 +154,7 @@ int Eydis::setupEydis(const char **argv)
 */
 int Eydis::setImgInfos(str_t type, str_t hex)
 {
-    // the version is only useful for the iBoots
-    int version = std::atoi(this->getImg() + 0x286);
+    int version = std::atoi(this->getImg() + 0x286); // the version is only useful for the iBoots
 
     if (memmem(this->getImg(), this->_length, hex.data(), hex.size())) {
         this->setType(type);
@@ -162,7 +162,23 @@ int Eydis::setImgInfos(str_t type, str_t hex)
         if (this->getArch() == EYDIS_ARM) {
             this->setBase(*(uint32_t *)(this->getImg() + 0x20) & ~0xfffff);
         } else {
-            this->setBase(((type == "SEPROM") ? 0x240000000 : *(uint64_t *)(this->getImg() + ((version >= 6723) ? 0x300 : 0x318))));
+            if (type == "iBoot") {
+                this->setBase(*(uint64_t *)(this->getImg() + ((version >= 6723) ? 0x300 : 0x318)));
+                return 0;
+            }
+
+            std::string search = std::string(this->getImg() + 0xc00, 0x1A); // 0xc00 is the offset where the SEPROM version is located
+
+            if (search.find("private_build...(") != std::string::npos) {
+                this->setBase(0x240000000); // A11+
+            } else if (search.find("AppleSEPROM-") != std::string::npos) {
+                version = std::atoi(search.substr(12).data());
+
+                this->setBase((version >= 834) ? 0x2a0000000 : 0x25c000000); // A17+ : A15+
+            } else {
+                this->setArch(EYDIS_ARM); // 32-bit SEPROM
+                this->setBase(0x10000000);
+            }
         }
 
         return 0;

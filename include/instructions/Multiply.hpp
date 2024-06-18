@@ -8,7 +8,7 @@
 
 #ifndef MULTIPLY_HPP
     #define MULTIPLY_HPP
-    #include "../Eydis.hpp"
+    #include <include/Eydis.hpp>
 
     //  Multiply instructions.
     class Multiply : virtual public Eydis {

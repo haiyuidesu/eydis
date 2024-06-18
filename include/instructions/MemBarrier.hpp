@@ -8,7 +8,7 @@
 
 #ifndef MEMBARRIER_HPP
     #define MEMBARRIER_HPP
-    #include "../Eydis.hpp"
+    #include <include/Eydis.hpp>
 
     // Memory barrier instructions
     class memBarrier : virtual public Eydis {

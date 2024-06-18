@@ -8,7 +8,7 @@
 
 #ifndef MOVEWIDE_HPP
     #define MOVEWIDE_HPP
-    #include "../Eydis.hpp"
+    #include <include/Eydis.hpp>
 
     //  31   30 29 28         23 22 21 20                              5 4        0
     // +----+-----+-------------+------+---------------------------------+---------+

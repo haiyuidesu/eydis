@@ -8,7 +8,7 @@
 
 #ifndef UNSIGNEDLOADSTOREOFFSET_HPP
     #define UNSIGNEDLOADSTOREOFFSET_HPP
-    #include "../Eydis.hpp"
+    #include <include/Eydis.hpp>
 
     //  31 30 29   27 26  25 24 23 22 21                     10 9         5 4         0
     // +-----+-------+---+-----+-----+-------------------------+-----------+----------+

@@ -8,7 +8,7 @@
 
 #ifndef RETURN_HPP
     #define RETURN_HPP
-    #include "../Eydis.hpp"
+    #include <include/Eydis.hpp>
 
     //  31           25  24  23  22  21                12  11  10  9     5  4   3   0
     // +---------------+---+---+---+---------------------+---+---+--------+---+-------+

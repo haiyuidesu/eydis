@@ -8,7 +8,7 @@
 
 #ifndef CALC_HPP
     #define CALC_HPP
-    #include "../Eydis.hpp"
+    #include <include/Eydis.hpp>
 
     //  31   30  29  28       24 23   22 21                     10 9         5 4      0
     // +----+---+---+-----------+-------+-------------------------+-----------+-------+

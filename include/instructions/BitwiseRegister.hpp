@@ -8,7 +8,7 @@
 
 #ifndef BITWISEREGISTER_HPP
     #define BITWISEREGISTER_HPP
-    #include "../Eydis.hpp"
+    #include <include/Eydis.hpp>
 
     //  31   30             24 23   22 21  20        16 15          10 9         5 4      0
     // +----+---+-------------+-------+---+------------+--------------+-----------+-------+

@@ -11,8 +11,8 @@
     #include <array>
     #include <iostream>
     #include <stdint.h>
-    #include "IEydis.hpp"
     #include <string_view>
+    #include <include/IEydis.hpp>
 
     class Utilities {
         public:

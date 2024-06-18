@@ -8,7 +8,7 @@
 
 #ifndef ATOMIC_HPP
     #define ATOMIC_HPP
-    #include "../Eydis.hpp"
+    #include <include/Eydis.hpp>
 
     //  31   30            24 23   22 21   20       16 15  14  13     10  9     4 3   0
     // +-----+---------------+---+---+---+------------+---+---+---------+--------+----+

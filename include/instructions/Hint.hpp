@@ -8,7 +8,7 @@
 
 #ifndef HINT_HPP
     #define HINT_HPP
-    #include "../Eydis.hpp"
+    #include <include/Eydis.hpp>
 
     // Sorry, I was too lazy to do this one.
     class Hint : virtual public Eydis {

@@ -8,7 +8,7 @@
 
 #ifndef BTEST_HPP
     #define BTEST_HPP
-    #include "../Eydis.hpp"
+    #include <include/Eydis.hpp>
 
     //  31   30         25 24  23                                    5 4          0
     // +----+-------------+---+---------------------------------------+-----------+

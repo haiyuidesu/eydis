@@ -8,7 +8,7 @@
 
 #ifndef LOADINSN_HPP
     #define LOADINSN_HPP
-    #include "../Eydis.hpp"
+    #include <include/Eydis.hpp>
 
     //   31 30             23 22                  15 14        10 9       5 4          0
     // +---+-----------------+---+------------------+-----------+----------+----------+

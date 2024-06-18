@@ -14,8 +14,8 @@
     #include <cstring>
     #include <iostream>
     #include <algorithm>
-    #include "Eydis.hpp"
     #include <string_view>
+    #include <include/Eydis.hpp>
 
     class Shell {
         private:

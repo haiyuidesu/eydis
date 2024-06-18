@@ -8,7 +8,7 @@
 
 #ifndef PCRELATIVECALC_HPP
     #define PCRELATIVECALC_HPP
-    #include "../Eydis.hpp"
+    #include <include/Eydis.hpp>
 
     //   31 30      29 28       24 23                              5 4       0
     // +---+----------+-----------+---------------------------------+----------+

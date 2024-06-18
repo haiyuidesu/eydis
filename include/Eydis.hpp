@@ -8,10 +8,10 @@
 
 #ifndef EYDIS_HPP
     #define EYDIS_HPP
-    #include "Config.hpp"
-    #include "IEydis.hpp"
-    #include "Database.hpp"
-    #include "Utilities.hpp"
+    #include <include/Config.hpp>
+    #include <include/IEydis.hpp>
+    #include <include/Database.hpp>
+    #include <include/Utilities.hpp>
 
     class Eydis : virtual public IEydis, virtual public Config, public Utilities {
         protected:

@@ -8,7 +8,7 @@
 
 #ifndef BCOND_HPP
     #define BCOND_HPP
-    #include "../Eydis.hpp"
+    #include <include/Eydis.hpp>
 
     //  31             24 23                                       4  3         0
     // +-----------------+---------------------------------------+---+----------+

@@ -6,8 +6,8 @@
 //  Copyright © 2023 haiyuidesu. All rights reserved.
 //
 
-#include "../include/Shell.hpp"
-#include "../include/Eydis.hpp"
+#include <include/Shell.hpp>
+#include <include/Eydis.hpp>
 
 uint32_t _mem = 0x0;
 uint64_t _addr = 0x0;

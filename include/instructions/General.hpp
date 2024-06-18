@@ -8,25 +8,25 @@
 
 #ifndef GENERAL_HPP
     #define GENERAL_HPP
-    #include <list>
+    #include <vector>
     #include <memory>
-    #include "BL.hpp"
-    #include "Hint.hpp"
-    #include "BTest.hpp"
-    #include "BComp.hpp"
-    #include "BCond.hpp"
-    #include "Atomic.hpp"
-    #include "Return.hpp"
-    #include "LoadInsn.hpp"
-    #include "MoveWide.hpp"
-    #include "Multiply.hpp"
-    #include "MemBarrier.hpp"
-    #include "DataProcess.hpp"
-    #include "Calculation.hpp"
-    #include "PCRelativeCalc.hpp"
-    #include "BitwiseRegister.hpp"
-    #include "ConditionalSelect.hpp"
-    #include "UnsignedLoadStoreOffset.hpp"
+    #include <include/instructions/BL.hpp>
+    #include <include/instructions/Hint.hpp>
+    #include <include/instructions/BTest.hpp>
+    #include <include/instructions/BComp.hpp>
+    #include <include/instructions/BCond.hpp>
+    #include <include/instructions/Atomic.hpp>
+    #include <include/instructions/Return.hpp>
+    #include <include/instructions/LoadInsn.hpp>
+    #include <include/instructions/MoveWide.hpp>
+    #include <include/instructions/Multiply.hpp>
+    #include <include/instructions/MemBarrier.hpp>
+    #include <include/instructions/DataProcess.hpp>
+    #include <include/instructions/Calculation.hpp>
+    #include <include/instructions/PCRelativeCalc.hpp>
+    #include <include/instructions/BitwiseRegister.hpp>
+    #include <include/instructions/ConditionalSelect.hpp>
+    #include <include/instructions/UnsignedLoadStoreOffset.hpp>
 
     class Unknow : virtual public Eydis {
         public:
@@ -42,13 +42,13 @@
     };
 
     template<typename ... Instructions>
-    inline std::list<std::unique_ptr<Eydis>> makeInstruction(void)
+    inline std::vector<std::unique_ptr<Eydis>> makeInstruction(void)
     {
-        std::list<std::unique_ptr<Eydis>> list;
+        std::vector<std::unique_ptr<Eydis>> vector;
 
-        (list.emplace_back(std::move(std::make_unique<Instructions>())), ...);
+        (vector.emplace_back(std::move(std::make_unique<Instructions>())), ...);
 
-        return list;
+        return vector;
     }
 
 #endif

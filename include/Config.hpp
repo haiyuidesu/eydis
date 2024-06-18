@@ -15,8 +15,8 @@
     #include <getopt.h>
     #include <iostream>
     #include <algorithm>
-    #include "IEydis.hpp"
     #include <string_view>
+    #include <include/IEydis.hpp>
 
     #define bswap32(x)     __builtin_bswap32(x)
 

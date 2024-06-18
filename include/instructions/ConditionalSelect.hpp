@@ -8,7 +8,7 @@
 
 #ifndef CONDITIONALSELECT_HPP
     #define CONDITIONALSELECT_HPP
-    #include "../Eydis.hpp"
+    #include <include/Eydis.hpp>
 
     //  Conditional Select registers: these instructions can be used as an alternative to branches.
     class ConditionalSelect : virtual public Eydis {

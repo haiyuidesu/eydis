@@ -8,7 +8,7 @@
 
 #ifndef DATAPROCESS_HPP
     #define DATAPROCESS_HPP
-    #include "../Eydis.hpp"
+    #include <include/Eydis.hpp>
 
     //  Data Processing: convert data from one size to another.
     class DataProcess : virtual public Eydis {
